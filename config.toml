@@ -1,0 +1,9 @@
+[metrics]
+  # Enable Prometheus metrics
+  enable = true
+  # The endpoint to expose metrics on
+  endpoint = ":26657"
+  # Prometheus namespace, subsystem and interval for scraping metrics
+  namespace = "gaia"
+  subsystem = "node"
+  interval = "5s"

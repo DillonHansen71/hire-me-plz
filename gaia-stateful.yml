@@ -1,0 +1,64 @@
+---    
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: gaia
+spec:
+  selector:
+    matchLabels:
+      run: gaia
+  serviceName: "gaia"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: gaia
+    spec:
+      volumes:
+      - name: gaia-data
+        persistentVolumeClaim:
+          claimName: gaia-data
+      containers:
+      - name:  gaia
+        image: tinstar71/hire-me-plz:latest
+      resources:
+        requests:
+          memory: "2Gi"
+          cpu: "1000m"
+        limits:
+          memory: "4Gi"
+          cpu: "3000m"
+        ports:
+        - containerPort: 26657
+        volumeMounts:
+        - mountPath: /
+          name: gaia-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gaia-metrics
+  labels:
+    run: gaia
+spec:
+  selector:
+    run: gaia
+  ports:
+    - name: http
+      port: 80
+      targetPort: 26657
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gaia-metrics
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`gaia-metrics.example.com`)
+      services:
+        - kind: Service
+          name: gaia-metrics
+          port: 80
